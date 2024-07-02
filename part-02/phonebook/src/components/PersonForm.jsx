@@ -2,7 +2,7 @@ import personService from "../services/persons";
 
 
 
-const PersonForm = ({ persons, newName, newNum, setNewName, setNewNum, setPersons }) => {
+const PersonForm = ({ persons, newName, newNum, setNewName, setNewNum, setPersons, setNotification }) => {
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -16,9 +16,16 @@ const PersonForm = ({ persons, newName, newNum, setNewName, setNewNum, setPerson
       personService
         .create(tempPerson)
         .then(response => {
+          setNotification({ type: "success", message: `Added ${newName}` })
+
           setPersons(persons.concat(response))
           setNewName("")
           setNewNum('')
+
+
+          setTimeout(() => {
+            setNotification({ type: "blanck" })
+          }, 5000);
         })
     } else {
       if (personInPhoneBook.number === newNum) {
@@ -32,7 +39,14 @@ const PersonForm = ({ persons, newName, newNum, setNewName, setNewNum, setPerson
             console.log('update person', res)
             setPersons(persons.map(person => personInPhoneBook.id !== person.id ? person : res))
           })
-          .catch(err => console.log('err', err))
+          .catch(() => {
+
+            setNotification({ type: "error", message: `${newName} has already been removed from server.` })
+            setTimeout(() => {
+              setNotification({ type: "blanck" })
+            }, 5000);
+
+          })
       }
     }
   }
