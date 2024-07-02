@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import SearchFilter from './components/SearchFilter'
 import PersonForm from './components/PersonForm'
 import ShowPersons from './components/ShowPersons'
-import axios from 'axios'
+import personService from "./services/persons"
 
 
 
@@ -22,10 +22,10 @@ const App = () => {
 
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
+    personService
+      .getAll()
       .then(response => {
-        setPersons(response.data)
+        setPersons(response)
       })
   }, [])
 
@@ -40,7 +40,7 @@ const App = () => {
 
       <PersonForm persons={persons} newNum={newNum} newName={newName} setNewName={setNewName} setNewNum={setNewNum} setPersons={setPersons} />
 
-      <ShowPersons filteredPersons={filteredPersons} />
+      <ShowPersons filteredPersons={filteredPersons} persons={persons} setPersons={setPersons} />
     </div>
   )
 }

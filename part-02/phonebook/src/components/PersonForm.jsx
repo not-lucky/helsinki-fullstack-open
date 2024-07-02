@@ -1,22 +1,39 @@
+import personService from "../services/persons";
+
+
+
 const PersonForm = ({ persons, newName, newNum, setNewName, setNewNum, setPersons }) => {
 
   const addPerson = (event) => {
     event.preventDefault();
 
-    // let found = false;
+    const tempPerson = { name: newName, number: newNum };
+    console.log('tempPerson', tempPerson)
 
-    // persons.forEach((person) => {
-    //   if (person.name === newName) {
-    //     found = true
-    //   }
-    // })
+    const personInPhoneBook = persons.find(person => person.name.toLocaleLowerCase() === newName.toLocaleLowerCase())
 
-    if (!persons.some(person => person.name.toLocaleLowerCase() === newName.toLocaleLowerCase())) {
-      setPersons(persons.concat({ name: newName, number: newNum, id: newName + newNum }))
-      setNewName("")
-      setNewNum('')
+    if (!personInPhoneBook) {
+      personService
+        .create(tempPerson)
+        .then(response => {
+          setPersons(persons.concat(response))
+          setNewName("")
+          setNewNum('')
+        })
     } else {
-      alert(`${newName} is already added to phonebook`)
+      if (personInPhoneBook.number === newNum) {
+        alert("Same name and number already in phonebook!")
+      }
+      else if (confirm(`${newName} is already added to phonebook, replace old number with new one?`)) {
+        personService
+          .update(personInPhoneBook.id, tempPerson)
+          .then(res => {
+            console.log('older person', personInPhoneBook)
+            console.log('update person', res)
+            setPersons(persons.map(person => personInPhoneBook.id !== person.id ? person : res))
+          })
+          .catch(err => console.log('err', err))
+      }
     }
   }
 
