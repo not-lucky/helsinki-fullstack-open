@@ -1,13 +1,21 @@
 const express = require('express')
+var morgan = require('morgan')
 
 
-const MAX = 10000000000
+const MAX = 100000000000
 const MIN = 10
+
 
 
 const app = express()
 
+
 app.use(express.json())
+
+morgan.token('body', (req) => JSON.stringify(req.body))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
+// app.use(requestLogger)
 
 
 let phonebook = [
@@ -33,9 +41,9 @@ let phonebook = [
   }
 ]
 
-// app.get('/', (request, response) => {
-//   response.send('<h1>Hello World!</h1>')
-// })
+app.get('/', (request, response) => {
+  response.send('<h1>try a valid endpoint maybe?</h1>')
+})
 
 app.get('/api/persons', (request, response) => {
   response.json(phonebook)
@@ -43,7 +51,7 @@ app.get('/api/persons', (request, response) => {
 
 app.get('/info', (request, response) => {
   const now = new Date()
-  console.log(now)
+  // console.log(now)
   const n = phonebook.length
   response.send(`Phonebook has info for ${n} people. <br /> ${now}`)
 })
@@ -51,7 +59,7 @@ app.get('/info', (request, response) => {
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
   const person = phonebook.find(person => person.id === id)
-  console.log('id', id)
+  // console.log('id', id)
   if (person) { response.json(person) } else { response.status(404).end() }
 })
 
@@ -66,7 +74,7 @@ const generateId = () => {
   return Math.floor((Math.random() * (MAX - MIN + 1)) + MIN).toString()
 }
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/persons', (request, response) => {
   const body = request.body
 
   if (!body.name) {
@@ -100,6 +108,14 @@ app.post('/api/notes', (request, response) => {
 
   response.json(person)
 })
+
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
 
 
 const PORT = 3001
