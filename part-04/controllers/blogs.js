@@ -1,6 +1,6 @@
 const blogRouter = require("express").Router()
 const Blog = require("../models/blog")
-const dummyData = require("../dummy/dummydata")
+const dummyData = require("../sample/dummydata")
 
 
 blogRouter.get('/', (request, response, next) => {
