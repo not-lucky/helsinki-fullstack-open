@@ -51,7 +51,7 @@ const mostLikes = (blogs) => {
     }
   }
 
-  console.log(maxLikes, auth)
+  // console.log(maxLikes, auth)
 
   return {
     author: auth,

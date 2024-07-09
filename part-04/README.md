@@ -16,6 +16,8 @@ This project was created using `bun init` in bun v1.1.17. [Bun](https://bun.sh) 
 
 ## Project Structure
 
+```txt
+
 ├── index.js
 ├── app.js
 ├── dist
@@ -29,4 +31,6 @@ This project was created using `bun init` in bun v1.1.17. [Bun](https://bun.sh) 
 ├── utils
 │   ├── config.js
 │   ├── logger.js
-│   └── middleware.js  
+│   └── middleware.js
+
+```
