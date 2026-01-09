@@ -1,15 +1,15 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-const Anecdote = ({ title, anecdote, vote }) => {
+const Anecdote = ( { title, anecdote, vote } ) => {
   return (
     <div>
-      <h1>{title}</h1>
-      {anecdote}
+      <h1>{ title }</h1>
+      { anecdote }
       <br />
-      has {vote} votes
+      has { vote } votes
     </div>
-  )
-}
+  );
+};
 
 
 const App = () => {
@@ -22,50 +22,50 @@ const App = () => {
     'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
     'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
     'The only way to go fast, is to go well.'
-  ]
+  ];
 
-  const [selected, setSelected] = useState(0)
-  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
-  const [maxVoted, setMaxVoted] = useState(0)
+  const [ selected, setSelected ] = useState( 0 );
+  const [ votes, setVotes ] = useState( Array( anecdotes.length ).fill( 0 ) );
+  const [ maxVoted, setMaxVoted ] = useState( 0 );
 
 
   const handleAnecdoteSelection = () => {
-    if (anecdotes.length < 2) {
-      return selected
+    if ( anecdotes.length < 2 ) {
+      return selected;
     }
 
-    let num = Math.floor(Math.random() * anecdotes.length)
-    while (num === selected) {
-      num = Math.floor(Math.random() * anecdotes.length)
+    let num = Math.floor( Math.random() * anecdotes.length );
+    while ( num === selected ) {
+      num = Math.floor( Math.random() * anecdotes.length );
     }
 
-    setSelected(num)
-  }
+    setSelected( num );
+  };
 
 
   const handleVoting = () => {
-    const newVotes = [...votes]
-    newVotes[selected]++
-    setVotes(newVotes)
+    const newVotes = [ ...votes ];
+    newVotes[ selected ]++;
+    setVotes( newVotes );
 
-    if (newVotes[selected] > votes[maxVoted]) {
-      setMaxVoted(selected)
+    if ( newVotes[ selected ] > votes[ maxVoted ] ) {
+      setMaxVoted( selected );
     }
-  }
+  };
 
 
   return (
     <div>
-      <Anecdote title={"Anecdote of the day"} anecdote={anecdotes[selected]} vote={votes[selected]} />
+      <Anecdote title={ "Anecdote of the day" } anecdote={ anecdotes[ selected ] } vote={ votes[ selected ] } />
 
 
-      <button onClick={handleVoting}>vote</button>
-      <button onClick={handleAnecdoteSelection}>next anecdote</button>
+      <button onClick={ handleVoting }>vote</button>
+      <button onClick={ handleAnecdoteSelection }>next anecdote</button>
 
-      <Anecdote title={"Anecdote with most votes"} anecdote={anecdotes[maxVoted]} vote={votes[maxVoted]} />
+      <Anecdote title={ "Anecdote with most votes" } anecdote={ anecdotes[ maxVoted ] } vote={ votes[ maxVoted ] } />
 
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
