@@ -3,6 +3,8 @@ import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import personsService from './services/persons';
+import Notification from './components/Notification';
+import './App.css';
 
 
 const App = () => {
@@ -10,6 +12,7 @@ const App = () => {
 
   const [ newPerson, setNewPerson ] = useState( { name: '', number: '' } );
   const [ filter, setFilter ] = useState( '' );
+  const [ notification, setNotification ] = useState( { message: null, type: null } );
 
 
   const handleSubmit = ( event ) => {
@@ -42,17 +45,21 @@ const App = () => {
       .then( returnedPerson => {
         setPersons( persons.concat( returnedPerson ) );
         setNewPerson( { name: '', number: '' } );
+        setNotification( { message: `Added ${ returnedPerson.name }`, type: 'success' } );
+        setTimeout( () => {
+          setNotification( { message: null, type: null } );
+        }, 5000 );
       } );
 
   };
 
 
   const handleDelete = ( id ) => {
-    console.log( 'id', id );
+    // console.log( 'id', id );
     if ( !window.confirm( `Sure wanna delete this person with id ${ id }` ) ) {
       return;
     }
-    console.log( 'uwu' );
+    // console.log( 'uwu' );
 
 
     personsService
@@ -61,7 +68,13 @@ const App = () => {
         setPersons( persons.filter( person => person.id !== id ) );
       } )
       .catch( () => {
-        alert( 'person was already purged from the server.' );
+        setNotification( {
+          message: 'person was already purged from the server.', type: 'error'
+        } );
+        setTimeout( () => {
+          setNotification( { message: null, type: null } );
+        }, 5000 );
+        setPersons( persons.filter( person => person.id !== id ) );
       } );
   };
 
@@ -83,6 +96,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
+      <Notification message={ notification.message } type={ notification.type } />
+
       <Filter filter={ filter } setFilter={ setFilter } />
 
       <h2>add a new</h2>
@@ -97,4 +112,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;;
