@@ -2,3 +2,4 @@ testing
 node_modules
 part-03\backend\.git
 .env
+test_back
