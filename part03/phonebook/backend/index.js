@@ -5,8 +5,22 @@ const Person = require( "./models/person" );
 
 const app = express();
 
+const unknownEndpoint = ( request, response ) => {
+  response.status( 404 ).send( { error: 'unknown endpoint' } );
+};
 
-app.use( express.static( 'dist' ) );
+const errorHandler = ( error, request, response, next ) => {
+  console.error( error.message );
+
+  if ( error.name === 'CastError' ) {
+    return response.status( 400 ).send( { error: 'malformatted id' } );
+  }
+
+  next( error );
+};
+
+
+// app.use( express.static( 'dist' ) );
 app.use( express.json() );
 
 morgan.token( 'body', ( req ) => JSON.stringify( req.body ) );
@@ -26,43 +40,30 @@ app.get( '/api/persons', ( request, response ) => {
 } );
 
 app.get( '/api/persons/:id', ( request, response ) => {
-  const id = request.params.id;
-  const person = persons.find( person => person.id === id );
-
-  if ( !person ) {
-    return response.status( 404 ).json( { error: 'Sorry, cant find that' } );
-  }
-
-  response.send( person );
-
+  Person.findById( request.params.id )
+    .then( person => {
+      if ( !person ) {
+        return response.status( 404 ).json( { error: 'Sorry, cant find that' } );
+      }
+      response.send( person );
+    } )
+    .catch( ( error ) => next( error ) );
 } );
 
 
 app.delete( '/api/persons/:id', ( request, response ) => {
-  const id = request.params.id;
-  const person = persons.find( person => person.id === id );
+  Person
+    .findByIdAndDelete( request.params.id )
+    .then( result => {
+      response.status( 204 ).end();
+    } )
+    .catch( error => next( error ) );
 
-  if ( !person ) {
-    return response.status( 404 ).json( { error: 'Sorry, cant find that' } );
-  }
-
-  persons = persons.filter( person => person.id !== id );
-
-  response.status( 204 ).end();
 } );
 
 
 app.post( '/api/persons', ( request, response ) => {
   const body = request.body;
-
-
-  // existingPerson = persons.find( person => person.name == body.name );
-
-  // if ( existingPerson ) {
-  //   return response.status( 400 ).json( {
-  //     error: 'name must be unique'
-  //   } );
-  // }
 
   const newPerson = Person( {
     // id: id.toString(),
@@ -78,11 +79,9 @@ app.post( '/api/persons', ( request, response ) => {
 } );
 
 
-const unknownEndpoint = ( request, response ) => {
-  response.status( 404 ).send( { error: 'unknown endpoint' } );
-};
 
 app.use( unknownEndpoint );
+app.use( errorHandler );
 
 const PORT = process.env.PORT || 3001;
 app.listen( PORT, () => {
