@@ -17,7 +17,8 @@ const App = () => {
 
   const handleSubmit = ( event ) => {
     event.preventDefault();
-    // console.log( 'newName', newName );
+    // console.log( 'newName', newPerson );
+    // console.log( 'creating' );
 
     const existingPerson = persons.find(
       person => person.name === newPerson.name
@@ -39,6 +40,8 @@ const App = () => {
       }
       return;
     };
+    // console.log( 'creating2' );
+
 
     personsService
       .create( newPerson )
@@ -46,6 +49,15 @@ const App = () => {
         setPersons( persons.concat( returnedPerson ) );
         setNewPerson( { name: '', number: '' } );
         setNotification( { message: `Added ${ returnedPerson.name }`, type: 'success' } );
+        setTimeout( () => {
+          setNotification( { message: null, type: null } );
+        }, 5000 );
+      } )
+      .catch( result => {
+        console.log( 'uwu' );
+
+        console.log( 'result', result );
+        setNotification( { message: result.response.data.error, type: 'error' } );
         setTimeout( () => {
           setNotification( { message: null, type: null } );
         }, 5000 );

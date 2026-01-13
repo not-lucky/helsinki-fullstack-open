@@ -14,11 +14,12 @@ const errorHandler = ( error, request, response, next ) => {
 
   if ( error.name === 'CastError' ) {
     return response.status( 400 ).send( { error: 'malformatted id' } );
+  } else if ( error.name === 'ValidationError' ) {
+    return response.status( 400 ).json( { error: error.message } );
   }
 
   next( error );
 };
-
 
 // app.use( express.static( 'dist' ) );
 app.use( express.json() );
@@ -62,19 +63,20 @@ app.delete( '/api/persons/:id', ( request, response ) => {
 } );
 
 
-app.post( '/api/persons', ( request, response ) => {
+app.post( '/api/persons', ( request, response, next ) => {
   const body = request.body;
 
   const newPerson = Person( {
     // id: id.toString(),
     name: body.name,
-    number: body.number || '1234567890'
+    number: body.number
   } );
 
   newPerson.save().then( savedPerson => {
     console.log( 'savedPerson', savedPerson );
     response.send( savedPerson );
-  } );
+  } )
+    .catch( error => next( error ) );
 
 } );
 
