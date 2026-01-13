@@ -1,48 +1,48 @@
-const mongoose = require( 'mongoose' );
+const mongoose = require( 'mongoose' )
 
 
-const url = process.env.MONGODB_URI;
+const url = process.env.MONGODB_URI
 
-mongoose.set( 'strictQuery', false );
+mongoose.set( 'strictQuery', false )
 
 mongoose.connect( url, { family: 4 } )
-  .then( result => {
-    console.log( 'connected to MongoDB' );
+  .then( () => {
+    console.log( 'connected to MongoDB' )
   } )
   .catch( error => {
-    console.log( 'error connecting to MongoDB:', error.message );
-  } );
+    console.log( 'error connecting to MongoDB:', error.message )
+  } )
 
 
 const phoneValidator = {
   validator: function ( value ) {
     // length check
     if ( value.length < 8 ) {
-      return false;
+      return false
     }
 
-    // must contain exactly one "-"
-    const parts = value.split( "-" );
+    // must contain exactly one '-'
+    const parts = value.split( '-' )
     if ( parts.length !== 2 ) {
-      return false;
+      return false
     }
 
-    const [ firstPart, secondPart ] = parts;
+    const [ firstPart, secondPart ] = parts
 
     // first part: 2 or 3 digits
     if ( !/^\d{2,3}$/.test( firstPart ) ) {
-      return false;
+      return false
     }
 
     // second part: digits only
     if ( !/^\d+$/.test( secondPart ) ) {
-      return false;
+      return false
     }
 
-    return true;
+    return true
   },
   message: props => `${ props.value } is not a valid phone number`
-};
+}
 
 const personSchema = new mongoose.Schema( {
   name: {
@@ -55,16 +55,16 @@ const personSchema = new mongoose.Schema( {
     required: true,
     validate: phoneValidator
   },
-} );
+} )
 
 
 personSchema.set( 'toJSON', {
   transform: ( document, returnedObject ) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
   }
-} );
+} )
 
 
-module.exports = mongoose.model( 'Person', personSchema );
+module.exports = mongoose.model( 'Person', personSchema )
