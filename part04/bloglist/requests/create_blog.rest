@@ -1,0 +1,9 @@
+POST http://localhost:3001/api/blogs HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "weiufjhweriouf",
+  "author": "owo",
+  "url": "https://www.uwu.owo",
+  "likes": 67
+}
