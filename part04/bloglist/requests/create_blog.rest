@@ -1,9 +1,10 @@
 POST http://localhost:3001/api/blogs HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InV3dWlqZm93amVvaWZqbyIsImlkIjoiNjlhNDNiNjA5Y2NlNmFlYjA5NzM1ODI1IiwiaWF0IjoxNzcyMzc0MjE5fQ.X9Hld9H7jvWqppRlSa9XGdhE3ubhLgAvg7-Ew4vZJZM
 Content-Type: application/json
 
 {
-  "title": "weiufjhweriouf",
-  "author": "owo",
+  "title": "weifwefwefiouf",
+  "author": "owsdfsdfo",
   "url": "https://www.uwu.owo",
   "likes": 67
 }

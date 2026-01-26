@@ -4,22 +4,33 @@ const mongoose = require( 'mongoose' )
 const supertest = require( 'supertest' )
 const app = require( '../app' )
 const Blog = require( '../models/blog' )
+const User = require( '../models/user' )
 const helper = require( './test_helper' )
+const bcrypt = require( 'bcrypt' )
 
 const api = supertest( app )
 
+let token = null
 
 beforeEach( async () => {
   await Blog.deleteMany( {} )
+  await User.deleteMany( {} )
 
-  // const blogObjects = helper.initialBlogs.map( blog => new Blog( blog ) )
+  const passwordHash = await bcrypt.hash( 'idkman', 10 )
+  const user = new User( {
+    username: 'testuser',
+    name: 'Test User',
+    passwordHash,
+  } )
+  await user.save()
 
-  // const promiseArray = blogObjects.map( blog => blog.save() )
+  const loginResponse = await api
+    .post( '/api/login' )
+    .send( { username: 'testuser', password: 'idkman' } )
 
-  // await Promise.all( promiseArray )
+  token = loginResponse.body.token
 
   await Blog.insertMany( helper.initialBlogs )
-
 } )
 
 describe( 'when there is initially some blogs saved', () => {
@@ -39,14 +50,14 @@ describe( 'when there is initially some blogs saved', () => {
   test( 'specific author is within the returned blogs', async () => {
     const response = await api.get( '/api/blogs' )
 
-    const authors = response.body.map( e => e.author )
+    const authors = response.body.map( ( e ) => e.author )
     assert.strictEqual( authors.includes( 'Edsger W. Dijkstra' ), true )
   } )
 
   test( 'the blogs have property id', async () => {
     const blogsAtEnd = await helper.blogsInDb()
 
-    const doesntHasID = blogsAtEnd.map( blog => !Object.hasOwn( blog, 'id' ) )
+    const doesntHasID = blogsAtEnd.map( ( blog ) => !Object.hasOwn( blog, 'id' ) )
 
     assert( !doesntHasID.some( Boolean ) )
   } )
@@ -56,7 +67,6 @@ describe( 'viewing a specific blog', () => {
   test( 'a specific blog can be viewed', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToView = blogsAtStart[ 0 ]
-
 
     const resultBlog = await api
       .get( `/api/blogs/${ blogToView.id }` )
@@ -78,6 +88,7 @@ describe( 'addition of a new blog', () => {
 
     await api
       .post( '/api/blogs' )
+      .set( 'Authorization', `Bearer ${ token }` )
       .send( newBlog )
       .expect( 201 )
       .expect( 'Content-Type', /application\/json/ )
@@ -85,7 +96,7 @@ describe( 'addition of a new blog', () => {
     const blogsAtEnd = await helper.blogsInDb()
     assert.strictEqual( blogsAtEnd.length, helper.initialBlogs.length + 1 )
 
-    const titles = blogsAtEnd.map( r => r.title )
+    const titles = blogsAtEnd.map( ( r ) => r.title )
     assert( titles.includes( 'random title' ) )
   } )
 
@@ -98,41 +109,39 @@ describe( 'addition of a new blog', () => {
 
     const response = await api
       .post( '/api/blogs' )
+      .set( 'Authorization', `Bearer ${ token }` )
       .send( newBlog )
       .expect( 201 )
       .expect( 'Content-Type', /application\/json/ )
 
     assert.strictEqual( response.body.likes, 0 )
-
   } )
 
   test( 'a blog without title or url raises 400 bad request ', async () => {
     const noTitle = {
       author: 'random author',
-      url: 'http://randomlink.com'
+      url: 'http://randomlink.com',
     }
 
     let response = await api
       .post( '/api/blogs' )
+      .set( 'Authorization', `Bearer ${ token }` )
       .send( noTitle )
       .expect( 400 )
 
-    // const error = response.body.error
-    // console.log( 'error', error )
-
     const noUrl = {
       title: 'idk',
-      author: 'random author'
+      author: 'random author',
     }
 
     response = await api
       .post( '/api/blogs' )
+      .set( 'Authorization', `Bearer ${ token }` )
       .send( noUrl )
       .expect( 400 )
 
     const error = response.body.error
     console.log( 'error', error )
-
   } )
 } )
 
@@ -141,13 +150,11 @@ describe( 'deletion of a blog', () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[ 0 ]
 
-    await api
-      .delete( `/api/blogs/${ blogToDelete.id }` )
-      .expect( 204 )
+    await api.delete( `/api/blogs/${ blogToDelete.id }` ).expect( 204 )
 
     const blogsAtEnd = await helper.blogsInDb()
 
-    const ids = blogsAtEnd.map( n => n.id )
+    const ids = blogsAtEnd.map( ( n ) => n.id )
     assert( !ids.includes( blogToDelete.id ) )
 
     assert.strictEqual( blogsAtEnd.length, helper.initialBlogs.length - 1 )
@@ -163,7 +170,7 @@ describe( 'updating a blog', () => {
 
     const newBlog = {
       ...blogToUpdate,
-      likes: 200
+      likes: 200,
     }
 
     const response = await api
@@ -179,9 +186,7 @@ describe( 'updating a blog', () => {
 
     const hopefullyUpdatedBlog = ( await api.get( `/api/blogs/${ blogID }` ) ).body
 
-
     assert.deepStrictEqual( updatedBlog, hopefullyUpdatedBlog )
-
   } )
 } )
 
